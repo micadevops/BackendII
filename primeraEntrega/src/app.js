@@ -3,7 +3,7 @@ import handlebars from 'express-handlebars';
 import {Server} from 'socket.io';
 import mongoose from 'mongoose';
 import passport from "passport";
-
+import dotenv from 'dotenv';
 import productRouter from './routes/productRouter.js';
 import cartRouter from './routes/cartRouter.js';
 import viewsRouter from './routes/viewsRouter.js';
@@ -14,7 +14,7 @@ import __dirname from './utils/constantsUtil.js';
 
 const app = express();
 
-const uri = 'mongodb+srv://Cluster88715:akx8W3dzRXVE@cluster88715.lvesl.mongodb.net/';
+const uri = process.env.MONGO_URL;
 mongoose.connect(uri)
 .then(() => console.log("Connected to MongoDB"))
 .catch((error) => console.error(error));
