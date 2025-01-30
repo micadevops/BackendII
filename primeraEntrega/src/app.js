@@ -14,10 +14,18 @@ import __dirname from './utils/constantsUtil.js';
 
 const app = express();
 
+dotenv.config();
+
+
 const uri = process.env.MONGO_URL;
+if (!uri) {
+    console.error('ERROR: La variable de entorno MONGO_URL no está definida');
+    process.exit(1);
+}
+
 mongoose.connect(uri)
-.then(() => console.log("Connected to MongoDB"))
-.catch((error) => console.error(error));
+    .then(() => console.log("Connected to MongoDB"))
+    .catch((error) => console.error(error));
 
   
 //Handlebars Config
