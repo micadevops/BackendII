@@ -6,6 +6,11 @@ const router = Router();
 const ProductService = new productDBManager();
 const CartService = new cartDBManager(ProductService);
 
+
+router.get("/", (req, res) => {
+    res.render("home");
+});
+
 router.get('/products', async (req, res) => {
     const products = await ProductService.getAllProducts(req.query);
 

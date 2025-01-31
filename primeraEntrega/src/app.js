@@ -1,6 +1,6 @@
 import express from 'express';
 import handlebars from 'express-handlebars';
-import {Server} from 'socket.io';
+import cookieParser from "cookie-parser";
 import mongoose from 'mongoose';
 import passport from "passport";
 import dotenv from 'dotenv';
@@ -9,7 +9,7 @@ import cartRouter from './routes/cartRouter.js';
 import viewsRouter from './routes/viewsRouter.js';
 import authRouter from  './routes/authRouter.js';
 import { initializePassport } from "./config/passport.config.js";
-
+import session from 'express-session';
 import __dirname from './utils/constantsUtil.js';
 
 const app = express();
@@ -27,11 +27,7 @@ mongoose.connect(uri)
     .then(() => console.log("Connected to MongoDB"))
     .catch((error) => console.error(error));
 
-  
-//Handlebars Config
-app.engine('handlebars', handlebars.engine());
-app.set('views', __dirname + '/../views');
-app.set('view engine', 'handlebars');
+
 
 //Middlewares
 // Middleware para procesar JSON
@@ -41,6 +37,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
+app.use(cookieParser());
+app.use(
+    session({
+      secret: process.env.SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: { 
+        httpOnly: true, 
+        maxAge: 1000 * 60,
+      },
+    })
+  );
+
+//Handlebars Config
+app.engine('handlebars', handlebars.engine());
+app.set('views', __dirname + '/../views');
+app.set('view engine', 'handlebars');
+
 
 // Passport
 initializePassport();

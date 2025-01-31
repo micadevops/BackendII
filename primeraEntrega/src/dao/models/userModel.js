@@ -1,6 +1,4 @@
-import { Schema, model } from "mongoose";
 import { validateEmail } from "../../middlewares/validateEmail.js";
-import { createHash, isValidPassword } from "../../utils/hash.js";
 import mongoose from 'mongoose'; 
 
 const userCollection = "users";
@@ -41,12 +39,6 @@ const userSchema = mongoose.Schema({
 
 //check si es un email valido.
 userSchema.pre("save", validateEmail);
-
-
-// //comparar los hash de la contraseña
-// userSchema.methods.isValidPassword = async function (password) {
-//     return await isValidPassword(password, this.password);
-// }
 
 
 export const userModel = mongoose.model(userCollection, userSchema);
