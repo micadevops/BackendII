@@ -18,14 +18,6 @@ export class AuthController {
       maxAge: 1000 * 60 * 2 // 2 min,
     });
 
-    res.json("BIENVENIDOOOOOO" + " " + req.user.email);
   }
-
-
-  static async register(req, res) {
-    res.json("Bienvenido a nuestro sistema: " + req.user.email)
-
-  }
-
   
 }

@@ -16,7 +16,7 @@ const app = express();
 
 dotenv.config();
 
-
+//Configuracion de Mongo DB
 const uri = process.env.MONGO_URL;
 if (!uri) {
     console.error('ERROR: La variable de entorno MONGO_URL no está definida');
@@ -29,14 +29,15 @@ mongoose.connect(uri)
 
 
 
-//Middlewares
 // Middleware para procesar JSON
 app.use(express.json());
 
-// Middleware para procesar datos URL encoded (si es necesario)
+// Middleware para procesar datos URL encoded
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
+
+//Configuracion del cookie parser - nos permite leer los cookies
 app.use(cookieParser());
 app.use(
     session({
@@ -45,7 +46,7 @@ app.use(
       saveUninitialized: false,
       cookie: { 
         httpOnly: true, 
-        maxAge: 1000 * 60,
+        maxAge: 1000 * 60, //1 minuto
       },
     })
   );
@@ -70,5 +71,5 @@ app.use('/', viewsRouter);
 
 const PORT = 8080;
 const httpServer = app.listen(PORT, () => {
-    console.log(`Start server in PORT ${PORT}`);
+    console.log(`Server running on port : ${PORT}`);
 });

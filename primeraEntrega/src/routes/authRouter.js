@@ -21,7 +21,47 @@ authRouter.post(
     successRedirect: "/api/sessions/login",
     failureMessage: true
   }),
-  AuthController.register
+);
+
+authRouter.post(
+  "/login",
+  passport.authenticate("login", { 
+    session: false,
+    failureRedirect: "/api/sessions/faillogin",
+    failureMessage: true
+  }),
+  async (req, res, next) => {
+    try {
+      await AuthController.login(req, res); 
+      res.redirect("/api/sessions/current");
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+authRouter.get(
+  "/current",
+  passport.authenticate("current", { 
+    session: false,
+    failureRedirect: "/api/sessions/faillogin",
+    failureMessage: true
+  }),
+  
+  (req, res) => {
+
+    if (!req.user) {
+      return res.redirect("/api/sessions/login");
+    }
+
+    const firstName = req.user.first_name;
+    const lastName = req.user.last_name;
+
+   res.render("current", {
+    firstName,
+    lastName
+   })
+  }
 );
 
 authRouter.get("/failregister", (req, res) => {
@@ -31,18 +71,12 @@ authRouter.get("/failregister", (req, res) => {
   });
 });
 
-authRouter.post(
-  "/login",
-  passport.authenticate("login", { session: false }),
-  AuthController.login
-);
+authRouter.get("/faillogin", (req, res) => {
+  const error = req.session.messages ? req.session.messages[req.session.messages.length - 1] : null;
+  res.render("login", {
+      message: error || "Error en el registro"
+  });
+});
 
-authRouter.get(
-  "/current",
-  passport.authenticate("current", { session: false }),
-  (req, res) => {
-    res.json({ mensaje: "Usuario autenticado", usuario: req.user });
-  }
-);
 
 export default authRouter;

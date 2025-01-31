@@ -32,7 +32,7 @@ router.get('/:pid', async (req, res) => {
 
 router.post('/', uploader.array('thumbnails', 3), async (req, res) => {
 
-    if (req.files) { //TODO: no entiendo que hace aca
+    if (req.files) {
         req.body.thumbnails = [];
         req.files.forEach((file) => {
             req.body.thumbnails.push(file.path);
