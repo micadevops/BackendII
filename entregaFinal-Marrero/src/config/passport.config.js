@@ -27,6 +27,8 @@ export function initializePassport() {
                 }
 
                 const newCart = await cartService.create();
+
+                console.log (newCart)
                 
                 const userData = {
                     first_name,
@@ -35,8 +37,11 @@ export function initializePassport() {
                     age,
                     role,
                     password,
-                    cartId: newCart._id
+                    cartId: newCart
                 };
+
+
+                console.log (userData)
 
                 const user = await userService.create(userData);
                 return done(null, user);

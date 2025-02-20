@@ -34,8 +34,10 @@ authRouter.post(
   }),
   async (req, res, next) => {
     try {
-      await AuthController.login(req, res); 
-      res.redirect("/api/sessions/current");
+      await AuthController.login(req, res);
+      if (!res.headersSent) {
+        res.redirect("/api/sessions/current");
+      }
     } catch (error) {
       next(error);
     }

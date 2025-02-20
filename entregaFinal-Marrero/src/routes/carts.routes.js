@@ -23,3 +23,8 @@ cartRouter.post("/:cid/product/:pid",
     isUser, 
     cartsController.addProductToCart
 );
+
+cartRouter.post("/:cid/purchase",
+    passport.authenticate('current', { session: false }), 
+    cartsController.purchaseCart
+);

@@ -3,11 +3,10 @@ import { z } from 'zod';
 const UserDTO = z.object({
     id: z.string(),
     email: z.string().email(),
-    name: z.string(), 
-    role: z.string()
+    name: z.string(),
+    role: z.string(),
+    cartId: z.string().optional()
 });
-
-
 
 const mapUserToDTO = (user) => {
     if (!user || !user._id || !user.first_name || !user.last_name) {
@@ -18,9 +17,9 @@ const mapUserToDTO = (user) => {
         id: user._id.toString(),
         email: user.email || "No disponible",
         name: `${user.first_name} ${user.last_name}`,
-        role: user.role || "user"
+        role: user.role || "user",
+        cartId: user.cartId ? user.cartId.toString() : undefined
     });
 };
-
 
 export { UserDTO, mapUserToDTO };

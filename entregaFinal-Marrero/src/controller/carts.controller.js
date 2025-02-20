@@ -190,4 +190,23 @@ export class CartsController {
         }
 
     }
+
+    purchaseCart = async (req, res) => {
+        try {
+            const { cid } = req.params;
+
+            console.log (cid)
+            
+            const userId = req.user.id;
+
+            if (!userId) {
+                return res.status(401).json({ message: "User not authenticated" });
+            }
+
+            const result = await this.cartService.purchaseCart(cid, userId);
+            res.json(result);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 }

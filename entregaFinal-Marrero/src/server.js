@@ -17,6 +17,7 @@ import { initializePassport } from "./config/passport.config.js";
 import passport from "passport";
 import { authRouter } from "./routes/auth.routes.js";
 import Handlebars from 'handlebars';
+import { ticketRouter } from "./routes/ticket.routes.js";
 
 
 dotenv.config();
@@ -78,6 +79,7 @@ app.set("views", path.resolve(__dirname, "./views"));
 app.use("/", viewsRouter);
 app.use("/api/products", productRouter);
 app.use("/api/carts", cartRouter);
+app.use("/api/ticket", ticketRouter);
 app.use('/api/sessions', authRouter);
 
 

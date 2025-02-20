@@ -9,23 +9,28 @@ export class AuthController {
       }
 
     static async login(req, res) {
+        try {
+            const payload = {
+                id: req.user._id,
+                email: req.user.email,
+                first_name: req.user.first_name,
+                last_name: req.user.last_name,
+            };
     
-        const payload = {
-        id: req.user._id,
-        email: req.user.email,
-        first_name: req.user.first_name,
-        last_name: req.user.last_name,
-        };
+            const token = await generateToken(payload);
 
-        const token = generateToken(payload);
+            res.cookie("token", token, {
+                httpOnly: true,
+                maxAge: 1000 * 60 * 2 // 2 min
+            });
+    
+            return res.status(200).json({ status: 'success'});
 
-        res.cookie("token", token, {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 2 // 2 min,
-        });
-
+        } catch (error) {
+            console.error('Error en login:', error);
+            return res.status(500).json({ error: error.message });
+        }
     }
-
 
     getAll = async (req, res) => {
         try {
@@ -42,7 +47,7 @@ export class AuthController {
     }
 
     getById = async (req, res) => {
-        const { uid } = req.body;
+        const { uid } = req.params;
         try {
             const user = await this.userService.getById(uid);
 

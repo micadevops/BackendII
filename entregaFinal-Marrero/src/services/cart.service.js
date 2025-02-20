@@ -1,10 +1,13 @@
 import { ProductService } from "./product.service.js";
 import { cartModel } from "../db/models/cart.model.js";
+import { userModel } from "../db/models/user.model.js";
 import { productModel } from "../db/models/product.model.js";
+import { TicketService } from "./ticket.service.js";
 
 export class CartService {
     constructor() {
         this.productService = new ProductService();
+        this.ticketService = new TicketService();
     }
     
     async getAll() {
@@ -242,6 +245,84 @@ export class CartService {
     
         } catch (error) {
             console.error(`An error occurred while try to delete all the products to the cart: ${cartId} with error message: ${error.message}`);
+        }
+    }
+
+    async purchaseCart(id, userId) {
+        try {
+            const user = await userModel.findById(userId);
+
+            console.log (user)
+
+            if (user.cartId.toString() !== id) {
+                throw new Error('Unauthorized: This cart does not belong to the user');
+            }
+    
+            const cart = await cartModel.findById(id).populate('products.product');
+            
+            if (!cart) {
+                throw new Error(`Cart with ID ${id} not found`);
+            }
+    
+    
+            const updatedProducts = [];
+            const failedProducts = [];
+            let totalAmount = 0;
+    
+            for (let item of cart.products) {
+                const product = item.product;
+                const quantityRequested = item.quantity;
+    
+                if (product.stock >= quantityRequested) {
+                    totalAmount += product.price * quantityRequested;
+    
+                    product.stock -= quantityRequested;
+                    await product.save(); 
+    
+                    updatedProducts.push({
+                        productId: product._id,
+                        quantity: quantityRequested,
+                    });
+                } else {
+                    failedProducts.push({
+                        productId: product._id,
+                        requestedQuantity: quantityRequested,
+                        availableStock: product.stock,
+                    });
+                }
+            }
+        
+            const ticket = await this.ticketService.create(userId, totalAmount);
+    
+            if (failedProducts.length > 0) {
+                cart.products = cart.products.filter(item => 
+                    failedProducts.some(failed => 
+                        failed.productId.toString() === item.product._id.toString()
+                    )
+                );
+    
+                await cart.save();
+    
+                return {
+                    status: "partial",
+                    message: "Some products are out of stock",
+                    failedProducts: failedProducts,
+                    ticket: ticket,
+                };
+            }
+    
+            cart.products = [];
+            await cart.save();
+    
+            return {
+                status: "success",
+                message: "Purchase completed successfully",
+                products: updatedProducts,
+                ticket: ticket,
+            };
+        } catch (error) {
+            console.error(`An error occurred while processing the purchase: ${error.message}`);
+            throw new Error(`An error occurred while processing the purchase: ${error.message}`);
         }
     }
 }
