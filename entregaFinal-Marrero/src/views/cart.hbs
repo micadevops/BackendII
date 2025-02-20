@@ -1,0 +1,37 @@
+<div class="page-header">
+    <h1>Cart {{cart._id}}</h1>
+</div>
+<button class="btn-custom" onclick="redirectToLocalhost()">Back to product catalog</button>
+{{#if cart.products.length}}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>Product</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Category</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each cart.products}}
+                <tr>
+                    <td>{{this._id}}</td>
+                    <td>{{this.product.title}}</td>
+                    <td>{{this.product.description}}</td>
+                    <td>{{this.product.price}}</td>
+                    <td>{{this.product.category}}</td>
+                    <td>{{this.quantity }}</td>
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+{{else}}
+    <p>No products in the cart.</p>
+{{/if}}
+  <script>
+        function redirectToLocalhost() {
+            window.location.href = 'http://localhost:8080/product';
+        }
+    </script>
