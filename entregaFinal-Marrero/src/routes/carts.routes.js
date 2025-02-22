@@ -15,6 +15,10 @@ cartRouter.delete("/:cid", cartsController.deleteAllProductsFromCart);
 cartRouter.delete("/:cid/product/:pid", cartsController.deleteProductFromCart);
 cartRouter.put("/:cid/product/:pid", cartsController.updateQuantityProduct);
 
+cartRouter.post("/:cid/purchase",
+    passport.authenticate('current', { session: false }), 
+    cartsController.purchaseCart
+);
 
 //PROTECTED ROUTES - Solo para user roles.
 
@@ -24,7 +28,3 @@ cartRouter.post("/:cid/product/:pid",
     cartsController.addProductToCart
 );
 
-cartRouter.post("/:cid/purchase",
-    passport.authenticate('current', { session: false }), 
-    cartsController.purchaseCart
-);

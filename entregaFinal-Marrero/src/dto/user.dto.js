@@ -1,14 +1,6 @@
 import { z } from 'zod';
 
-const UserDTO = z.object({
-    id: z.string(),
-    email: z.string().email(),
-    name: z.string(),
-    role: z.string(),
-    cartId: z.string().optional()
-});
-
-const mapUserToDTO = (user) => {
+const createUserDTO = (user) => {
     if (!user || !user._id || !user.first_name || !user.last_name) {
         throw new Error("El usuario no tiene todos los datos requeridos");
     }
@@ -22,4 +14,12 @@ const mapUserToDTO = (user) => {
     });
 };
 
-export { UserDTO, mapUserToDTO };
+const getUserDTO = z.object({
+    id: z.string(),
+    email: z.string().email(),
+    name: z.string(),
+    role: z.string(),
+    cartId: z.string().optional()
+});
+
+export { getUserDTO, createUserDTO };

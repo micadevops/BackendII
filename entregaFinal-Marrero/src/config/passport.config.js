@@ -5,7 +5,7 @@ import { cookieExtractor } from "../utils/cookieExtractor.js";
 import { UserService } from "../services/user.service.js";
 import { CartService } from "../services/cart.service.js";
 import {  isValidPassword } from "../utils/hash.js";
-import { mapUserToDTO, UserDTO } from "../dto/user.dto.js";
+import { getUserDTO, createUserDTO } from "../dto/user.dto.js";
 
 const userService = new UserService();
 const cartService = new CartService();
@@ -27,8 +27,6 @@ export function initializePassport() {
                 }
 
                 const newCart = await cartService.create();
-
-                console.log (newCart)
                 
                 const userData = {
                     first_name,
@@ -41,7 +39,10 @@ export function initializePassport() {
                 };
 
                 const user = await userService.create(userData);
-                return done(null, user);
+
+                const userDTO = createUserDTO(user);
+
+                return done(null, userDTO);
             } catch (error) {
                 return done(error);
             }

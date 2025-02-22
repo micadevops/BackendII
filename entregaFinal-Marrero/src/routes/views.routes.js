@@ -48,13 +48,9 @@ viewsRouter.get("/cart/:cid", async (req, res) => {
             return res.status(404).send("Carrito no encontrado");
         }
 
-        // console.log(cart)
-
         if (!cart._id) {
             return res.status(500).send("Carrito sin ID encontrado");
         }
-
-        // console.log(cart._id)
 
        const cartWithStringId = cart.toObject ? cart.toObject() : cart;
 

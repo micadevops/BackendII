@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ProductDTO = z.object({
+export const createProductDTO = z.object({
   title: z.string().min(3, "El título debe tener al menos 3 caracteres"),
   description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
   code: z.string().min(3, "El código debe tener al menos 3 caracteres"),
@@ -11,16 +11,16 @@ export const ProductDTO = z.object({
 });
 
 
-export const mapProductToDTO = (product) => {
+export const getProductDTO = (product) => {
     return {
-      id: product._id.toString(),
+      id: product._id ? product._id.toString() : undefined,
       title: product.title,
       description: product.description,
       price: product.price,
       stock: product.stock,
       category: product.category,
-      thumbnails: product.thumbnails.length > 0 ? product.thumbnails : undefined,
+      thumbnails: product.thumbnails> 0 ? product.thumbnails : undefined,
     };
-  };
+};
 
   

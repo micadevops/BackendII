@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CartOutputDTO = z.object({
+export const getCartDTO = z.object({
   _id: z.string().min(24, "El ID del carrito debe ser válido y tener 24 caracteres"), 
   products: z.array(
     z.object({

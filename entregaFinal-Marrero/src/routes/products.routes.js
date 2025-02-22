@@ -2,7 +2,7 @@ import { Router } from "express";
 import { ProductsController } from "../controller/products.controller.js";
 import { isAdmin } from "../middlewares/userRole.js";
 import passport from 'passport';
-import { ProductDTO } from "../dto/product.dto.js";
+import { createProductDTO } from "../dto/product.dto.js";
 import { validateDto } from "../middlewares/validDTO.middleware.js";
 
 
@@ -18,7 +18,7 @@ productRouter.get("/:pid", productController.getById)
 productRouter.post('/', 
     passport.authenticate('current', { session: false }), 
     isAdmin,
-    validateDto(ProductDTO),
+    validateDto(createProductDTO),
     productController.create
 );
 

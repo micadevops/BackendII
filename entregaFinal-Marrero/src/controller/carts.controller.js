@@ -1,6 +1,6 @@
 
 import { CartService } from "../services/cart.service.js";
-import { CartOutputDTO } from "../dto/cart.dto.js";
+import { getCartDTO } from "../dto/cart.dto.js";
 
 export class CartsController {
 
@@ -51,7 +51,7 @@ export class CartsController {
           
               const total = formattedProducts.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
           
-              const responseData = CartOutputDTO.parse({
+              const responseData = getCartDTO.parse({
                 _id: cart._id.toString(),
                 products: formattedProducts,
                 total

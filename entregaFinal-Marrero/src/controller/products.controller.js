@@ -1,6 +1,6 @@
 import { ProductService } from "../services/product.service.js";
 import { io } from "../server.js";
-import { mapProductToDTO } from "../dto/product.dto.js";
+import { getProductDTO } from "../dto/product.dto.js";
 
 export class ProductsController {
     constructor() {
@@ -34,7 +34,7 @@ export class ProductsController {
                 return res.status(404).json({ message: `Product not found with ID: ${pid}` });
             }
             
-            return res.json(mapProductToDTO(product));
+            return res.json(getProductDTO(product));
         } 
         catch (error) {
             return res.status(500).json({ message: `An error occurred while trying to get the product with ID: ${pid}: ${error.message}` });

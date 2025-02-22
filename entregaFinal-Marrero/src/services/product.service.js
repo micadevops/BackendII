@@ -1,6 +1,5 @@
 import  { productModel } from "../db/models/product.model.js";
 import mongoose from 'mongoose';
-
 export class ProductService {
 
 
@@ -73,7 +72,7 @@ export class ProductService {
         const product = await productModel.findById(id);
 
         if (!product) {
-            null;
+            return null;
         }
 
         return product

@@ -1,6 +1,6 @@
 import { generateToken } from "../utils/jwt.js";
 import { UserService } from "../services/user.service.js";
-
+import { getUserDTO } from "../dto/user.dto.js";
 
 export class AuthController {
 
@@ -54,6 +54,17 @@ export class AuthController {
             if (!user) {
                 return res.status(404).json({ message: `User not found with ID: ${uid}` });
             }
+
+            const userDTO = getUserDTO.parse({
+                id: user._id.toString(),
+                email: user.email,
+                name: `${user.first_name} ${user.last_name}`,
+                role: user.role,
+                cartId: user.cartId ? user.cartId.toString() : undefined
+            });
+
+            res.status(200).json(userDTO);
+
 
             res.status(200).json(user);
         } catch (error) {
