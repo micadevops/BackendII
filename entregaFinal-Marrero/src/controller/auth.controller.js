@@ -61,28 +61,6 @@ export class AuthController {
         }
     }
 
-    create = async (req, res) => {
-        const { first_name, last_name, email, age, password, role } = req.body;
-
-        if (!first_name || !last_name || !email || !age || !password) {
-            return res.status(400).json({ message: "All fields are required" });
-        }
-
-        try {
-            const user = await this.userService.create({ 
-                first_name, 
-                last_name, 
-                email, 
-                age, 
-                password,
-                role: role || 'user'
-            });
-
-            res.status(201).json(user);
-        } catch (error) {
-            return res.status(500).json({ message: `An error occurred while trying to create a user: ${error.message}` });
-        }
-    }
 
     update = async (req, res) => {
         const { uid } = req.params;

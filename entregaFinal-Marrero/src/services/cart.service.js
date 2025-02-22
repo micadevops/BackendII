@@ -3,11 +3,13 @@ import { cartModel } from "../db/models/cart.model.js";
 import { userModel } from "../db/models/user.model.js";
 import { productModel } from "../db/models/product.model.js";
 import { TicketService } from "./ticket.service.js";
+import { EmailService } from '../utils/email.js';
 
 export class CartService {
     constructor() {
         this.productService = new ProductService();
         this.ticketService = new TicketService();
+        this.emailService = new EmailService();
     }
     
     async getAll() {
@@ -145,7 +147,7 @@ export class CartService {
                 throw new Error(`Product with ID ${pid} not found`);
             }
             
-            const cartId = await cartModel.findById(id)
+            const cartId = await cartModel.findById(id);
     
             if(!cartId) {
                 throw new Error(`Cart with ID ${id} not found`);
@@ -154,8 +156,7 @@ export class CartService {
             if (productId.stock < 1) {
                 throw new Error(`Product ${pid} is out of stock`);
             }
-
-
+    
             const cart = await cartModel.findOneAndUpdate(
                 { _id: id, 'products.product': pid },
                 { 
@@ -182,18 +183,12 @@ export class CartService {
                 );
             }
     
-            const updatedProductStock = await productModel.findOneAndUpdate(
-                { _id: pid, stock: { $gt: 0 } },
-                { $inc: { stock: -1 } }, 
-                { new: true }
-            );
-            
             return cart;
-
-            } catch (error) {
-                console.error(`An error occurred while try to add the product: ${productId} to the cart: ${cartId} with error message: ${error.message}`);
-            }
+    
+        } catch (error) {
+            console.error(`An error occurred while trying to add the product: ${pid} to the cart: ${id} with error message: ${error.message}`);
         }
+    }
 
     async deleteProductFromCart(id, pid) {
         try {
@@ -247,13 +242,10 @@ export class CartService {
             console.error(`An error occurred while try to delete all the products to the cart: ${cartId} with error message: ${error.message}`);
         }
     }
-
     async purchaseCart(id, userId) {
         try {
             const user = await userModel.findById(userId);
-
-            console.log (user)
-
+    
             if (user.cartId.toString() !== id) {
                 throw new Error('Unauthorized: This cart does not belong to the user');
             }
@@ -264,7 +256,6 @@ export class CartService {
                 throw new Error(`Cart with ID ${id} not found`);
             }
     
-    
             const updatedProducts = [];
             const failedProducts = [];
             let totalAmount = 0;
@@ -272,27 +263,53 @@ export class CartService {
             for (let item of cart.products) {
                 const product = item.product;
                 const quantityRequested = item.quantity;
-    
+            
                 if (product.stock >= quantityRequested) {
                     totalAmount += product.price * quantityRequested;
-    
-                    product.stock -= quantityRequested;
-                    await product.save(); 
-    
                     updatedProducts.push({
                         productId: product._id,
                         quantity: quantityRequested,
+                        title: product.title,  
+                        price: product.price
                     });
                 } else {
                     failedProducts.push({
                         productId: product._id,
+                        title: product.title,
                         requestedQuantity: quantityRequested,
                         availableStock: product.stock,
                     });
                 }
             }
-        
+    
+            if (updatedProducts.length === 0) {
+                return {
+                    status: "failed",
+                    message: "No products available for purchase",
+                    failedProducts: failedProducts
+                };
+            }
+    
+            for (let product of updatedProducts) {
+                const dbProduct = await productModel.findById(product.productId);
+                dbProduct.stock -= product.quantity;
+                await dbProduct.save();
+            }
+    
             const ticket = await this.ticketService.create(userId, totalAmount);
+            
+            await this.emailService.sendPurchaseConfirmation(
+                user.email,
+                {
+                    ticketId: ticket._id,
+                    code: ticket.code,
+                    purchase_datetime: ticket.purchase_datetime,
+                    amount: totalAmount,
+                    purchaser: user.email,
+                    products: updatedProducts,
+                    failedProducts: failedProducts
+                }
+            );
     
             if (failedProducts.length > 0) {
                 cart.products = cart.products.filter(item => 
@@ -300,14 +317,14 @@ export class CartService {
                         failed.productId.toString() === item.product._id.toString()
                     )
                 );
-    
                 await cart.save();
     
                 return {
                     status: "partial",
-                    message: "Some products are out of stock",
+                    message: "Some products were purchased, others remain in cart due to insufficient stock",
                     failedProducts: failedProducts,
-                    ticket: ticket,
+                    successfulProducts: updatedProducts,
+                    ticket: ticket
                 };
             }
     
@@ -318,10 +335,10 @@ export class CartService {
                 status: "success",
                 message: "Purchase completed successfully",
                 products: updatedProducts,
-                ticket: ticket,
+                ticket: ticket
             };
+    
         } catch (error) {
-            console.error(`An error occurred while processing the purchase: ${error.message}`);
             throw new Error(`An error occurred while processing the purchase: ${error.message}`);
         }
     }

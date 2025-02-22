@@ -40,9 +40,6 @@ export function initializePassport() {
                     cartId: newCart
                 };
 
-
-                console.log (userData)
-
                 const user = await userService.create(userData);
                 return done(null, user);
             } catch (error) {
